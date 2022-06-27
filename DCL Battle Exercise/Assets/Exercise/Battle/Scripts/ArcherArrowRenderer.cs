@@ -11,7 +11,7 @@ public class ArcherArrowRenderer : ObjectRendererBase
         }
     }
 
-    public override void Render(MaterialsProvider materialsProvider)
+    public override void Render(MaterialsProvider materialsProvider, float deltaTime)
     {
         if (obj is ArcherArrow arrow)
         {

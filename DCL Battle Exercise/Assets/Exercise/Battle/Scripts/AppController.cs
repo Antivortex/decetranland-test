@@ -216,7 +216,7 @@ public class AppController : MonoBehaviour, IWorldProxy
         UpdateCamera();
 
         foreach (var r in renderers)
-            r.Render(_materialsProvider);
+            r.Render(_materialsProvider, deltaTime);
 
         RemoveDeadRenderers();
     }

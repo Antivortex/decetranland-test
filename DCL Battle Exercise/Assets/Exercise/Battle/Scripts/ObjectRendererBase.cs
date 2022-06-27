@@ -32,7 +32,7 @@ public abstract class ObjectRendererBase : MonoBehaviour, IRenderer, IPoolItem
     }
 
     public abstract void SetupMaterials(MaterialsProvider materialProvider);
-    public abstract void Render(MaterialsProvider materialsProvider);
+    public abstract void Render(MaterialsProvider materialsProvider, float deltaTime);
 
     public bool IsDead()
     {

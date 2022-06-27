@@ -36,7 +36,7 @@ public abstract class UnitBaseRenderer : MonoBehaviour, IRenderer
     }
 
     public abstract void SetupMaterials(MaterialsProvider materialsProvider);
-    public void Render(MaterialsProvider materialsProvider)
+    public void Render(MaterialsProvider materialsProvider, float deltaTime)
     {
         if (unitToRender != null)
         {
@@ -44,8 +44,12 @@ public abstract class UnitBaseRenderer : MonoBehaviour, IRenderer
             
             if (unitToRender.position != _lastPosition)
             {
-                if(_animator != null)
-                    _animator.SetFloat("MovementSpeed", (SelfTransform.position - _lastPosition).magnitude / unitToRender.speed);
+                if (_animator != null)
+                {
+                    var delta = (unitToRender.position - _lastPosition).magnitude;
+                    _animator.SetFloat("MovementSpeed", delta /
+                                                        (unitToRender.speed * deltaTime));
+                }
             }
             
             //local position is faster to access then position
