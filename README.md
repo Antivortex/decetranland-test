@@ -1,3 +1,16 @@
+# Solution Note
+
+In this solution I have implemented following improvements:
+
+1) Made position updates for all of the objects framerate independent
+2) Separated rendering classes from core gameplay classes to simplify potential unit testing and also allow more control over time (i.e. implement future prediction for multiplayer)
+3) Optimized object spawning with pools
+4) Optimized object iterations with caching army center positions and then using them within unit update methods
+5) Optimized various GetComponent and transform calls
+6) Extended the project to support several armies instead of 2 including retargeting of the enemy army if current enemy army is 100% dead
+7) Optimized material usage by making sure different objects of the same color will use the same material
+
+
 # Battle Simulator
 
 ![](Battle.gif)
