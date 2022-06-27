@@ -53,6 +53,7 @@
   </PropertyGroup>
   <ItemGroup>
      <Compile Include="Assets\Exercise\Battle\Scripts\Archer.cs" />
+     <Compile Include="Assets\Exercise\Battle\Scripts\ArcherArrow.cs" />
      <Compile Include="Assets\Exercise\Battle\Scripts\HitObject.cs" />
      <Compile Include="Assets\Exercise\Battle\Scripts\IWorldProxy.cs" />
      <Compile Include="Assets\Exercise\Battle\Scripts\UnitBase.cs" />
@@ -70,7 +71,7 @@
      <Compile Include="Assets\Exercise\Battle\Scripts\WarriorRenderer.cs" />
      <Compile Include="Assets\Exercise\Battle\Scripts\ArcherRenderer.cs" />
      <Compile Include="Assets\Exercise\LaunchMenu\Scripts\ArmyView.cs" />
-     <Compile Include="Assets\Exercise\Battle\Scripts\ArcherArrow.cs" />
+     <Compile Include="Assets\Exercise\Battle\Scripts\ArcherArrowRenderer.cs" />
      <Compile Include="Assets\Exercise\Utils\EnumDropdownWrapper.cs" />
      <Compile Include="Assets\Exercise\LaunchMenu\Scripts\GameOverMenu.cs" />
      <Compile Include="Assets\Exercise\LaunchMenu\Scripts\LaunchMenu.cs" />

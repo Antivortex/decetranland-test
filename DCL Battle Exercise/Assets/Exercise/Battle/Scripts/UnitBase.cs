@@ -19,7 +19,7 @@ public abstract class UnitBase
     
     protected float attackCooldown;
     
-    private Vector3 _lastPosition;
+    public bool Dead { get; private set; }
     
     public void Init(IUnitModel unitModel, IArmyModel armyModel, Army army, Vector3 pos)
     {
@@ -54,8 +54,6 @@ public abstract class UnitBase
                 UpdateBasic(allies, enemies, worldProxy);
                 break;
         }
-       
-        _lastPosition = position;
     }
     public abstract void Attack(UnitBase enemy);
     protected abstract void UpdateDefensive(IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
@@ -93,7 +91,7 @@ public abstract class UnitBase
         if ( health < 0 )
         {
             forward = source.position - position;
-            army.RemoveUnit(this);
+            Dead = true;
 
             //TODO ANTON render death
             // var animator = GetComponentInChildren<Animator>();

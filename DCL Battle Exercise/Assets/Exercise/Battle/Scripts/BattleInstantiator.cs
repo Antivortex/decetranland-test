@@ -162,6 +162,9 @@ public class BattleInstantiator : MonoBehaviour, IWorldProxy
         {
             unit.Update(deltaTime, this);
         }
+
+        army1.RemoveDeadUnits();
+        army2.RemoveDeadUnits();
         
         UpdateCamera(army1, army2);
 
