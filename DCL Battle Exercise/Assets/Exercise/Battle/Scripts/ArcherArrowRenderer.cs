@@ -2,14 +2,20 @@ using UnityEngine;
 
 public class ArcherArrowRenderer : ObjectRendererBase
 {
-    [SerializeField] private Renderer _renderer;
 
-    public override void Render()
+    public override void SetupMaterials(MaterialsProvider materialProvider)
+    {
+        if (obj is ArcherArrow arrow)
+        {
+            Renderer.material = materialProvider.GetArrowMaterial(arrow.army.ArmyIndex);
+        }
+    }
+
+    public override void Render(MaterialsProvider materialsProvider)
     {
         if (obj is ArcherArrow arrow)
         {
             selfTransform.position = arrow.position;
-            _renderer.sharedMaterial.color = arrow.army.color;
 
             if (arrow.forward != Vector3.zero)
             {

@@ -4,15 +4,22 @@ using UnityEngine;
 
 public class Army
 {
+    
+    public int ArmyIndex { get; }
+    
     //changed to public properties for the sake of incapsulation
     //allows to extend getter and setter with additional lines later if needed
     public Army enemyArmy { get; set; }
-    public Color color { get; set; }
     
     public Vector3 center { get; private set; }
 
     private List<UnitBase> units = new List<UnitBase>();
     private List<UnitBase> unitsBuffer = new List<UnitBase>();
+    
+    public Army(int armyIndex)
+    {
+        ArmyIndex = armyIndex;
+    }
 
     public IEnumerable<UnitBase> OwnAndEnemyUnits
     {

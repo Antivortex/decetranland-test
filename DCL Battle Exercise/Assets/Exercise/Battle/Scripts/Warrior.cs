@@ -31,7 +31,7 @@ public class Warrior : UnitBase, IHitSource
     protected override void UpdateDefensive(float deltaTime, IEnumerable<UnitBase> allies,
         IEnumerable<UnitBase> enemies, IWorldProxy worldProxy)
     {
-        Vector3 enemyCenter = worldProxy.GetEnemyArmyCenter(army);
+        Vector3 enemyCenter = army.enemyArmy.center;
 
         if ( Mathf.Abs( enemyCenter.x - position.x ) > 20 )
         {

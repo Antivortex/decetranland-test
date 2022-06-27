@@ -92,7 +92,6 @@ GameObject:
   - component: {fileID: 1114636284409260434}
   - component: {fileID: 6969590871247763298}
   - component: {fileID: 8284140959867094785}
-  - component: {fileID: 7039717929269275102}
   m_Layer: 0
   m_Name: Archer
   m_TagString: Untagged
@@ -146,20 +145,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6600123ff874432ba036a34514085fa3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _renderingController: {fileID: 7039717929269275102}
-  _animator: {fileID: 6969590871247763298}
-  attackRange: 20
-  arrowPrefab: {fileID: 4995913744683215106, guid: 43df16efbb83b484d91bf87170fd46c2, type: 3}
---- !u!114 &7039717929269275102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7211230073387977219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07ccc05e8d19b49b597276a46ef0d8d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   _renderer: {fileID: 5068147908177715982}
+  _animator: {fileID: 6969590871247763298}

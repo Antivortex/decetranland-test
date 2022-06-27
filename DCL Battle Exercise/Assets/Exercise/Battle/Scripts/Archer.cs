@@ -23,7 +23,7 @@ public class Archer : UnitBase
         AttacksCount++;
 
         var arrow = new ArcherArrow();
-        arrow.Init(pos:position, target:enemy, sourceArmy:army, worldProxy);
+        arrow.Init(pos:position, enemyTarget:enemy, sourceArmy:army, worldProxy);
         worldProxy.AddObject(arrow);
     }
 
@@ -33,7 +33,7 @@ public class Archer : UnitBase
         IEnumerable<UnitBase> enemies,
         IWorldProxy worldProxy)
     {
-        Vector3 enemyCenter = worldProxy.GetEnemyArmyCenter(army);
+        Vector3 enemyCenter = army.enemyArmy.center;
         float distToEnemyX = Mathf.Abs( enemyCenter.x - position.x );
 
         if ( distToEnemyX > attackRange )

@@ -2,7 +2,7 @@ namespace Exercise.Battle.Scripts
 {
     public interface IRenderer
     {
-        void Render();
+        void Render(MaterialsProvider materialsProvider);
         bool IsDead();
         void Destroy();
     }

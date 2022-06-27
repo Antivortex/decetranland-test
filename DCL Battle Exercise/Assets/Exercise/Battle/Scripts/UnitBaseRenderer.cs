@@ -7,11 +7,14 @@ public abstract class UnitBaseRenderer : MonoBehaviour, IRenderer
     [SerializeField] private Renderer _renderer;
     [SerializeField] private Animator _animator;
 
+    protected Renderer Renderer => _renderer;
+
     private Vector3 _lastPosition;
     private int _lastAttacksCount;
+    private int _lastHitsCount;
 
-    private Transform _selfTransform;
-    private UnitBase _unitToRender;
+    private Transform selfTransform;
+    protected UnitBase unitToRender;
 
     //since transform property has significant overhead it makes sense to cache 
     //own transform reference in the base class of the unit
@@ -19,51 +22,62 @@ public abstract class UnitBaseRenderer : MonoBehaviour, IRenderer
     {
         get
         {
-            if (_selfTransform == null)
-                _selfTransform = transform;
+            if (selfTransform == null)
+                selfTransform = transform;
 
-            return _selfTransform;
+            return selfTransform;
         }
     }
 
-    public void Init(UnitBase unit, Color color)
+    public void Init(UnitBase unit, MaterialsProvider materialsProvider)
     {
-        _unitToRender = unit;
-        _renderer.sharedMaterial.color = color;
+        unitToRender = unit;
+        SetupMaterials(materialsProvider);
     }
 
-    public void Render()
+    public abstract void SetupMaterials(MaterialsProvider materialsProvider);
+    public void Render(MaterialsProvider materialsProvider)
     {
-        if (_unitToRender != null)
+        if (unitToRender != null)
         {
-            if (_unitToRender.position != _lastPosition)
+            
+            
+            if (unitToRender.position != _lastPosition)
             {
                 if(_animator != null)
-                    _animator.SetFloat("MovementSpeed", (SelfTransform.position - _lastPosition).magnitude / _unitToRender.speed);
+                    _animator.SetFloat("MovementSpeed", (SelfTransform.position - _lastPosition).magnitude / unitToRender.speed);
             }
             
             //local position is faster to access then position
             //but it will only work as expected if all of the units
             //are located within same parent or at least parents with 0,0,0 position
-            SelfTransform.localPosition = _unitToRender.position;
+            SelfTransform.localPosition = unitToRender.position;
             
-            if(_unitToRender.forward != Vector3.zero)
-                SelfTransform.forward = _unitToRender.forward;
+            if(unitToRender.forward != Vector3.zero)
+                SelfTransform.forward = unitToRender.forward;
 
-            if (_unitToRender.AttacksCount > _lastAttacksCount)
+            if (unitToRender.AttacksCount > _lastAttacksCount)
             { 
                 if(_animator != null)
                     _animator.SetTrigger("Attack");
-                _lastAttacksCount = _unitToRender.AttacksCount;
+                _lastAttacksCount = unitToRender.AttacksCount;
             }
 
-            _lastPosition = _unitToRender.position;
+            if (unitToRender.HitsCount > _lastHitsCount)
+            {
+                if(_animator != null)
+                    _animator.SetTrigger("Hit");
+
+                _lastHitsCount = unitToRender.HitsCount;
+            }
+
+            _lastPosition = unitToRender.position;
         }
     }
 
     public bool IsDead()
     {
-        return _unitToRender == null || _unitToRender.Dead;
+        return unitToRender == null || unitToRender.Dead;
     }
 
     public virtual void Destroy()

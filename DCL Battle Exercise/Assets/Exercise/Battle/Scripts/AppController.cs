@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Exercise.Battle.Scripts;
 using Exercise.Models.Scripts;
@@ -25,21 +26,16 @@ public class AppController : MonoBehaviour, IWorldProxy
     [SerializeField] 
     private UnitPoolProvider _unitPoolProvider;
 
-    [SerializeField]
-    private BoxCollider leftArmySpawnBounds;
+    [SerializeField] 
+    private MaterialsProvider _materialsProvider;
 
-    [SerializeField]
-    private BoxCollider rightArmySpawnBounds;
-    
+    [SerializeField] private BoxCollider[] armySpawnColliders;
+    [SerializeField] private ArmyModelSO[] armyModels;
 
-    public readonly Army army1 = new Army();
-    public readonly Army army2 = new Army();
+    private readonly List<Army> armies = new List<Army>();
 
     private List<ObjectBase> objects = new List<ObjectBase>();
     private List<ObjectBase> objectsBuffer = new List<ObjectBase>();
-
-    public Color army1Color;
-    public Color army2Color;
 
     public GameOverMenu gameOverMenu;
 
@@ -47,25 +43,20 @@ public class AppController : MonoBehaviour, IWorldProxy
     private List<IRenderer> renderersBuffer = new List<IRenderer>();
 
     private Vector3 forwardTarget;
+    private bool gameOver;
 
-    public Vector3 firstArmyCenter { get; set; }
-    public Vector3 secondArmyCenter { get; set; }
-    public Vector3 GetEnemyArmyCenter(Army ownArmy)
-    {
-        if (ownArmy == army1)
-            return secondArmyCenter;
-        else if (ownArmy == army2)
-            return firstArmyCenter;
-
-        Debug.LogError("Own army not found");
-        return firstArmyCenter;
-    }
-
-    public Vector3 totalArmiesCenter { get; set; }
+    public Vector3 totalArmiesCenter { get; private set; }
 
     public IObjectModel GetObjectModel(ObjectType type)
     {
         return modelProvider.GetObjectModel(type);
+    }
+
+    public IEnumerable<UnitBase> GetAllUnits()
+    {
+        foreach(var army in armies)
+        foreach (var unit in army.GetUnits())
+            yield return unit;
     }
 
     void InstanceArmy(IArmyModel armyModel, Army army, Bounds instanceBounds)
@@ -91,7 +82,7 @@ public class AppController : MonoBehaviour, IWorldProxy
         army.AddUnit(unit);
         var unitPool = _unitPoolProvider.GetPoolFor(unit.Type);
         var unitRenderer = unitPool.Spawn<UnitBaseRenderer>();
-        unitRenderer.Init(unit, army.color);
+        unitRenderer.Init(unit, _materialsProvider);
         renderers.Add(unitRenderer);
     }
     
@@ -101,83 +92,131 @@ public class AppController : MonoBehaviour, IWorldProxy
 
         var rendererPool = _objectPoolsProvider.GetPoolFor(obj.Type);
         var objRenderer = rendererPool.Spawn<ObjectRendererBase>();
+        objRenderer.Init(obj, _materialsProvider);
         renderers.Add(objRenderer);
     }
     
     void Awake()
     {
-        army1.color = army1Color;
-        army1.enemyArmy = army2;
+        gameOver = false;
+        for (int i = 0; i < armySpawnColliders.Length; i++)
+        {
+            var someCollider = armySpawnColliders[i];
+            var army = new Army(i);
+            var armyModel = armyModels[i];
+            armies.Add(army);
+            InstanceArmy(armyModel, army, someCollider.bounds);
+        }
 
-        army2.color = army2Color;
-        army2.enemyArmy = army1;
-
-        InstanceArmy(army1Model, army1, leftArmySpawnBounds.bounds);
-        InstanceArmy(army2Model, army2, rightArmySpawnBounds.bounds);
+        for (int i = 0; i < armies.Count; i++)
+        {
+            var j = i + 1;
+            if (j == armies.Count)
+                j = 0;
+            
+            armies[i].enemyArmy = armies[j];
+        }
     }
 
-    void UpdateArmyCenters()
+    void UpdateArmyProperties(float deltaTime)
     {
 
         //here we update army properties separately from units
         //to optimize heavy operation of center calculation
         //to cache it within army object
-        firstArmyCenter = Vector3.zero;
-        secondArmyCenter = Vector3.zero;
         totalArmiesCenter = Vector3.zero;
+
+        foreach (var currentArmy in armies)
+        {
+            currentArmy.Update(deltaTime);
+            totalArmiesCenter += currentArmy.center;
+
+            //enemy retargeting for the case of >2 armies
+            if (currentArmy.enemyArmy.unitsCount == 0)
+            {
+                var newEnemy = GetAnyArmyNotDeadExcept(currentArmy);
+                if (newEnemy != null)
+                    currentArmy.enemyArmy = newEnemy;
+            }
+        }
+
+        totalArmiesCenter /= armies.Count;
         
-        foreach (var unit in army1.GetUnits())
+        
+    }
+
+    private Army GetAnyArmyNotDeadExcept(Army currentArmy)
+    {
+        foreach (var army in armies)
         {
-            firstArmyCenter += unit.position;
+            if (army.unitsCount == 0)
+                continue;
+
+            if (army == currentArmy)
+                continue;
+
+            return army;
         }
 
-        firstArmyCenter /= army1.unitsCount;
+        return null;
+    }
 
-        foreach (var unit in army2.GetUnits())
+    bool AllOtherArmiesDead(Army army)
+    {
+        bool result = true;
+        foreach (var otherArmy in armies)
         {
-            secondArmyCenter += unit.position;
+            if (army == otherArmy)
+                continue;
+
+            result &= otherArmy.unitsCount == 0;
         }
 
-        secondArmyCenter /= army2.unitsCount;
-
-        totalArmiesCenter = (firstArmyCenter + secondArmyCenter) * 0.5f;
+        return result;
     }
 
     void Update()
     {
-        if ( army1.unitsCount == 0 || army2.unitsCount == 0 )
-        {
-            gameOverMenu.gameObject.SetActive(true);
-            gameOverMenu.Populate(this);
+        if (gameOver)
             return;
+        
+        foreach (var army in armies)
+        {
+            if (AllOtherArmiesDead(army))
+            {
+                gameOverMenu.gameObject.SetActive(true);
+                gameOverMenu.Populate(army);
+                gameOver = true;
+                return;
+            }
         }
         
-        UpdateArmyCenters();
 
         var deltaTime = Time.deltaTime;
-        
-        foreach (var unit in army1.GetUnits())
-        {
-            unit.Update(deltaTime, this);
-        }
+        UpdateArmyProperties(deltaTime);
 
-        foreach (var unit in army2.GetUnits())
+        foreach (var army in armies)
         {
-            unit.Update(deltaTime, this);
+            foreach (var unit in army.GetUnits())
+            {
+                unit.Update(deltaTime, this);
+            }
         }
         
         foreach(var obj in objects)
             obj.Update(deltaTime, this);
 
-        army1.RemoveDeadUnits();
-        army2.RemoveDeadUnits();
+        foreach (var army in armies)
+        {
+            army.RemoveDeadUnits();
+        }
 
         RemoveDeadObjects();
         
-        UpdateCamera(army1, army2);
+        UpdateCamera();
 
         foreach (var r in renderers)
-            r.Render();
+            r.Render(_materialsProvider);
 
         RemoveDeadRenderers();
     }
@@ -220,10 +259,15 @@ public class AppController : MonoBehaviour, IWorldProxy
         renderersBuffer.Clear();
     }
 
-    private void UpdateCamera(Army army1, Army army2)
+    private void UpdateCamera()
     {
-        Vector3 mainCenter = army1.center + army2.center;
-        mainCenter *= 0.5f;
+        Vector3 mainCenter = Vector3.zero;
+        foreach (var army in armies)
+        {
+            mainCenter += army.center;
+        }
+
+        mainCenter /= armies.Count;
 
         forwardTarget = (mainCenter - mainCameraTransform.position).normalized;
 

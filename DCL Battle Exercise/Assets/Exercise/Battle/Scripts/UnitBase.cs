@@ -25,6 +25,7 @@ public abstract class UnitBase
 
     //counters for rendering
     public int AttacksCount { get; protected set; }
+    public int HitsCount { get; protected set; }
     
     
     public void Init(IUnitModel unitModel, IArmyModel armyModel, Army army, Vector3 pos)
@@ -43,7 +44,7 @@ public abstract class UnitBase
 
     public virtual void Update(float deltaTime, IWorldProxy worldProxy)
     {
-        if ( health < 0)
+        if (health < 0)
             return;
 
         IEnumerable<UnitBase> allies = army.GetUnits();
@@ -80,19 +81,6 @@ public abstract class UnitBase
     {
         float sourceAttack = source.attack;
 
-        //TODO ANTON handle this
-        // if ( source != null )
-        // {
-        //     sourceAttack = source.attack;
-        // }
-        // else
-        // {
-        //     ArcherArrow arrow = source.GetComponent<ArcherArrow>();
-        //     sourceAttack = arrow.attack;
-        // }
-        
-        
-
         health -= Mathf.Max(sourceAttack - defense, 0);
 
         if ( health < 0 )
@@ -101,9 +89,7 @@ public abstract class UnitBase
         }
         else
         {
-            //TODO ANTON render hit
-            // var animator = GetComponentInChildren<Animator>();
-            // animator?.SetTrigger("Hit");
+            HitsCount++;
         }
     }
 
@@ -111,13 +97,10 @@ public abstract class UnitBase
         IWorldProxy worldProxy)
     {
         attackCooldown -= Time.deltaTime;
-        EvadeAllies(allies, worldProxy);
+        EvadeOther(worldProxy);
     }
 
-    //in original repo this method is called EvadeAllies but allies argument is not used
-    //and evading is implemented for both allies and enemies
-    //i left it as is, though seems like it is supposed to be used only for allies
-    void EvadeAllies(IEnumerable<UnitBase> allies, IWorldProxy worldProxy)
+    void EvadeOther(IWorldProxy worldProxy)
     {
         Vector3 center = worldProxy.totalArmiesCenter;
 
@@ -130,7 +113,7 @@ public abstract class UnitBase
             return;
         }
 
-        foreach ( var unit in army.OwnAndEnemyUnits )
+        foreach ( var unit in worldProxy.GetAllUnits() )
         {
             float dist = Vector3.Distance(position, unit.position);
 

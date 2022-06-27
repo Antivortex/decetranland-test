@@ -18,4 +18,4 @@ MonoBehaviour:
   attackRange: 20
   maxAttackCooldown: 5
   postAttackDelay: 1
-  speed: 0.0016
+  speed: 6
