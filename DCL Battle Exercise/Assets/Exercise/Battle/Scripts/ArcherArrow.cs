@@ -24,8 +24,8 @@ public class ArcherArrow : MonoBehaviour
 
             if (dist < speed)
             {
-                UnitBase unit = a.GetComponent<UnitBase>();
-                unit.Hit(gameObject);
+                UnitBaseRenderer unit = a.GetComponent<UnitBaseRenderer>();
+                unit.Hit(unit);
                 Destroy(gameObject);
                 return;
             }

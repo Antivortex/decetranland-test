@@ -3,25 +3,55 @@ using UnityEngine;
 
 public class Army
 {
-    public Army enemyArmy;
-    public Color color;
-    public List<Warrior> warriors = new List<Warrior>();
-    public List<Archer> archers = new List<Archer>();
+    //changed to public properties for the sake of incapsulation
+    //allows to extend getter and setter with additional lines later if needed
+    public Army enemyArmy { get; set; }
+    public Color color { get; set; }
+    
+    public Vector3 center { get; private set; }
 
-    public List<GameObject> GetUnits()
+    private readonly List<UnitBase> units = new List<UnitBase>();
+
+    public int unitsCount => units.Count;
+
+    public void AddUnit(UnitBase unit)
     {
-        List<GameObject> result = new List<GameObject>();
+        units.Add(unit);
+    }
 
-        foreach ( var warrior in warriors )
+    public static IEnumerable<UnitBase> UnitedUnitsFor(params Army[] armies)
+    {
+        if(armies == null)
+            yield break;
+
+        foreach (var army in armies)
         {
-            result.Add( warrior.gameObject );
+            foreach ( var unit in army.units )
+            {
+                yield return unit;
+            }
         }
+    }
 
-        foreach ( var archer in archers )
+    //allows to reduce allocations
+    public IEnumerable<UnitBase> GetUnits()
+    {
+        return units;
+    }
+
+    public void RemoveUnit(UnitBase unitBase)
+    {
+        units.Remove(unitBase);
+    }
+
+    public void Update(float deltaTime)
+    {
+        center = Vector3.zero;
+        foreach (var unit in units)
         {
-            result.Add( archer.gameObject );
+            center += unit.position;
         }
-
-        return result;
+        
+        center /= units.Count;
     }
 }

@@ -11,38 +11,61 @@ public static class Utils
         pos.z = Random.Range( bounds.min.z, bounds.max.z );
         return pos;
     }
-
-    public static Vector3 GetCenter<T>( List<T> objects )
-        where T : Component
+    
+    public static Vector3 GetCenter( IEnumerable<UnitBase> units)
     {
         Vector3 result = Vector3.zero;
 
-        foreach ( var o in objects )
+        int count = 0;    
+        foreach ( var unit in units )
         {
-            result += o.transform.position;
+            result += unit.position;
+            count++;
         }
 
-        result.x /= objects.Count;
-        result.y /= objects.Count;
-        result.z /= objects.Count;
+        result /= count;
 
         return result;
     }
 
-    public static Vector3 GetCenter( List<GameObject> objects )
+    public static Vector3 GetCenter( IEnumerable<GameObject> objects)
     {
         Vector3 result = Vector3.zero;
 
+        int count = 0;    
         foreach ( var o in objects )
         {
             result += o.transform.position;
+            count++;
         }
 
-        result.x /= objects.Count;
-        result.y /= objects.Count;
-        result.z /= objects.Count;
+        result.x /= count;
+        result.y /= count;
+        result.z /= count;
 
         return result;
+    }
+
+    public static float GetNearestUnit(UnitBaseRenderer sourceUnit, IEnumerable<UnitBaseRenderer> units, out UnitBaseRenderer nearestUnit)
+    {
+        float minSqrMagnitude = float.MaxValue;
+        nearestUnit = null;
+
+        foreach ( var obj in units )
+        {
+            //sqr magnitude is better for distance comparison 
+            //because it allows to avoid calling sqrt to find real distance
+            //but comparison result still holds
+            float dist = Vector3.SqrMagnitude(sourceUnit.SelfTransform.position-obj.SelfTransform.position);
+
+            if ( dist < minSqrMagnitude )
+            {
+                minSqrMagnitude = dist;
+                nearestUnit = obj;
+            }
+        }
+
+        return minSqrMagnitude;
     }
 
     public static float GetNearestObject( GameObject source, List<GameObject> objects, out GameObject nearestObject )
