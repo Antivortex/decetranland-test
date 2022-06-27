@@ -46,6 +46,17 @@ public class BattleInstantiator : MonoBehaviour, IWorldProxy
 
     public Vector3 firstArmyCenter { get; set; }
     public Vector3 secondArmyCenter { get; set; }
+    public Vector3 GetEnemyArmyCenter(Army ownArmy)
+    {
+        if (ownArmy == army1)
+            return secondArmyCenter;
+        else if (ownArmy == army2)
+            return firstArmyCenter;
+
+        Debug.LogError("Own army not found");
+        return firstArmyCenter;
+    }
+
     public Vector3 totalArmiesCenter { get; set; }
 
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Army
@@ -11,6 +12,18 @@ public class Army
     public Vector3 center { get; private set; }
 
     private readonly List<UnitBase> units = new List<UnitBase>();
+
+    public IEnumerable<UnitBase> OwnAndEnemyUnits
+    {
+        get
+        {
+            foreach (var unit in units)
+                yield return unit;
+
+            foreach (var unit in enemyArmy.units)
+                yield return unit;
+        }
+    }
 
     public int unitsCount => units.Count;
 

@@ -46,6 +46,7 @@ public abstract class UnitBaseRenderer : MonoBehaviour
             }
             
             SelfTransform.localPosition = _unitToRender.position;
+            SelfTransform.forward = _unitToRender.forward;
 
             _lastPosition = _unitToRender.position;
         }

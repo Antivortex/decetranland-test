@@ -6,10 +6,7 @@ using UnityEngine;
 
 public interface IWorldProxy
 {
-    
-    public Vector3 firstArmyCenter { get; }
-    
-    public Vector3 secondArmyCenter { get; }
+    public Vector3 GetEnemyArmyCenter(Army ownArmy);
     
     public Vector3 totalArmiesCenter { get; }
 }

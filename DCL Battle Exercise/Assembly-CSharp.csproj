@@ -53,6 +53,7 @@
   </PropertyGroup>
   <ItemGroup>
      <Compile Include="Assets\Exercise\Battle\Scripts\Archer.cs" />
+     <Compile Include="Assets\Exercise\Battle\Scripts\HitObject.cs" />
      <Compile Include="Assets\Exercise\Battle\Scripts\IWorldProxy.cs" />
      <Compile Include="Assets\Exercise\Battle\Scripts\UnitBase.cs" />
      <Compile Include="Assets\Exercise\Battle\Scripts\Warrior.cs" />

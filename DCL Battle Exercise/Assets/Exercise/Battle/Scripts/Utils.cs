@@ -46,7 +46,7 @@ public static class Utils
         return result;
     }
 
-    public static float GetNearestUnit(UnitBaseRenderer sourceUnit, IEnumerable<UnitBaseRenderer> units, out UnitBaseRenderer nearestUnit)
+    public static float GetNearestUnit(UnitBase sourceUnit, IEnumerable<UnitBase> units, out UnitBase nearestUnit)
     {
         float minSqrMagnitude = float.MaxValue;
         nearestUnit = null;
@@ -56,7 +56,7 @@ public static class Utils
             //sqr magnitude is better for distance comparison 
             //because it allows to avoid calling sqrt to find real distance
             //but comparison result still holds
-            float dist = Vector3.SqrMagnitude(sourceUnit.SelfTransform.position-obj.SelfTransform.position);
+            float dist = Vector3.SqrMagnitude(sourceUnit.position-obj.position);
 
             if ( dist < minSqrMagnitude )
             {
