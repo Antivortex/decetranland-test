@@ -1,37 +1,24 @@
-using System;
 using UnityEngine;
 
-public class ArcherArrowRenderer : MonoBehaviour
+public class ArcherArrowRenderer : ObjectRendererBase
 {
-    public float speed;
+    [SerializeField] private Renderer _renderer;
 
-    [NonSerialized] public Vector3 target;
-    [NonSerialized] public float attack;
-
-    public Army army;
-
-    public void Update()
+    public override void Render()
     {
-        Vector3 direction = (target - transform.position).normalized;
-        transform.position += direction * speed;
-        transform.forward = direction;
-
-        foreach ( var a in army.enemyArmy.GetUnits() )
+        if (obj is ArcherArrow arrow)
         {
-            float dist = Vector3.Distance(a.transform.position, transform.position);
+            selfTransform.position = arrow.position;
+            _renderer.sharedMaterial.color = arrow.army.color;
 
-            if (dist < speed)
+            if (arrow.forward != Vector3.zero)
             {
-                UnitBaseRenderer unit = a.GetComponent<UnitBaseRenderer>();
-                unit.Hit(unit);
-                Destroy(gameObject);
-                return;
+                selfTransform.forward = arrow.forward;
             }
         }
-
-        if ( Vector3.Distance(transform.position, target) < speed)
+        else
         {
-            Destroy(gameObject);
+            Debug.LogError("Wrong type of object: " + obj?.GetType());
         }
     }
 }

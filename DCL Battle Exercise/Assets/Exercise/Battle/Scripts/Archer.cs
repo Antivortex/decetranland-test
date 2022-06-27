@@ -3,7 +3,14 @@ using UnityEngine;
 
 public class Archer : UnitBase
 {
-    public override void Attack(UnitBase enemy)
+    public Archer()
+    {
+        id = ObjectBase.GetIdentifier();
+    }
+    
+    public override UnitType Type => UnitType.Archer;
+    
+    public override void Attack(UnitBase enemy, IWorldProxy worldProxy)
     {
         if ( attackCooldown > 0 )
             return;
@@ -12,41 +19,30 @@ public class Archer : UnitBase
             return;
 
         attackCooldown = maxAttackCooldown;
-        
-        //TODO ANTON render attack
-        
 
-        // var animator = GetComponentInChildren<Animator>();
-        // animator?.SetTrigger("Attack");
-        
-        //TODO ANTON create arrow here
-        // GameObject arrow = Object.Instantiate(arrowPrefab.gameObject);
-        // arrow.GetComponent<ArcherArrow>().target = enemy.transform.position;
-        // arrow.GetComponent<ArcherArrow>().attack = attack;
-        // arrow.GetComponent<ArcherArrow>().army = army;
-        // arrow.transform.position = transform.position;
+        AttacksCount++;
 
-        // if ( army == BattleInstantiator.instance.army1 )
-        //     arrow.GetComponent<Renderer>().material.color = BattleInstantiator.instance.army1Color;
-        // else
-        //     arrow.GetComponent<Renderer>().material.color = BattleInstantiator.instance.army2Color;
+        var arrow = new ArcherArrow();
+        arrow.Init(pos:position, target:enemy, sourceArmy:army, worldProxy);
+        worldProxy.AddObject(arrow);
     }
 
    
 
-    protected override void UpdateDefensive(IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
+    protected override void UpdateDefensive(float deltaTime, IEnumerable<UnitBase> allies,
+        IEnumerable<UnitBase> enemies,
         IWorldProxy worldProxy)
     {
-        Vector3 enemyCenter = Utils.GetCenter(enemies);
+        Vector3 enemyCenter = worldProxy.GetEnemyArmyCenter(army);
         float distToEnemyX = Mathf.Abs( enemyCenter.x - position.x );
 
         if ( distToEnemyX > attackRange )
         {
             if ( enemyCenter.x < position.x )
-                Move( Vector3.left );
+                Move(deltaTime, Vector3.left );
 
             if ( enemyCenter.x > position.x )
-                Move( Vector3.right );
+                Move(deltaTime, Vector3.right );
         }
 
         float distToNearest = Utils.GetNearestUnit(this, enemies, out UnitBase nearestEnemy );
@@ -60,19 +56,19 @@ public class Archer : UnitBase
             toNearest.Scale( new Vector3(1, 0, 1));
 
             Vector3 flank = Quaternion.Euler(0, 90, 0) * toNearest;
-            Move( -(toNearest + flank).normalized );
+            Move(deltaTime, -(toNearest + flank).normalized );
         }
         else
         {
             Vector3 toNearest = (nearestEnemy.position - position).normalized;
             toNearest.Scale( new Vector3(1, 0, 1));
-            Move( toNearest.normalized );
+            Move( deltaTime, toNearest.normalized );
         }
 
-        Attack(nearestEnemy);
+        Attack(nearestEnemy, worldProxy);
     }
 
-    protected override void UpdateBasic(IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
+    protected override void UpdateBasic(float deltaTime, IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
         IWorldProxy worldProxy)
     {
         Utils.GetNearestUnit(this, enemies, out UnitBase nearestEnemy );
@@ -82,8 +78,8 @@ public class Archer : UnitBase
 
         Vector3 toNearest = (nearestEnemy.position - position).normalized;
         toNearest.Scale( new Vector3(1, 0, 1));
-        Move( toNearest.normalized );
+        Move(deltaTime, toNearest.normalized );
 
-        Attack(nearestEnemy);
+        Attack(nearestEnemy, worldProxy);
     }
 }

@@ -2,8 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Warrior : UnitBase, IHitSource
-{
-    public override void Attack( UnitBase targetUnit )
+{    
+    public Warrior()
+    {
+        id = ObjectBase.GetIdentifier();
+    }
+    
+    public override UnitType Type => UnitType.Warrior;
+    
+    public override void Attack( UnitBase targetUnit, IWorldProxy worldProxy )
     {
         if ( attackCooldown > 0 )
             return;
@@ -16,23 +23,23 @@ public class Warrior : UnitBase, IHitSource
 
         attackCooldown = maxAttackCooldown;
 
-        //TODO ANTON animate attack
-        // animator?.SetTrigger("Attack");
+        AttacksCount++;
 
         targetUnit.Hit( this );
     }
 
-    protected override void UpdateDefensive(IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies, IWorldProxy worldProxy)
+    protected override void UpdateDefensive(float deltaTime, IEnumerable<UnitBase> allies,
+        IEnumerable<UnitBase> enemies, IWorldProxy worldProxy)
     {
         Vector3 enemyCenter = worldProxy.GetEnemyArmyCenter(army);
 
         if ( Mathf.Abs( enemyCenter.x - position.x ) > 20 )
         {
             if ( enemyCenter.x < position.x )
-                Move( Vector3.left );
+                Move( deltaTime, Vector3.left );
 
             if ( enemyCenter.x > position.x )
-                Move( Vector3.right );
+                Move( deltaTime, Vector3.right );
         }
 
         Utils.GetNearestUnit(this, enemies, out UnitBase nearestUnit );
@@ -41,16 +48,16 @@ public class Warrior : UnitBase, IHitSource
             return;
 
         if ( attackCooldown <= 0 )
-            Move( (nearestUnit.position - position).normalized );
+            Move(deltaTime, (nearestUnit.position - position).normalized );
         else
         {
-            Move( (nearestUnit.position - position).normalized * -1 );
+            Move(deltaTime, (nearestUnit.position - position).normalized * -1 );
         }
 
-        Attack(nearestUnit);
+        Attack(nearestUnit, worldProxy);
     }
 
-    protected override void UpdateBasic(IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
+    protected override void UpdateBasic(float deltaTime, IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
         IWorldProxy worldProxy)
     {
         Utils.GetNearestUnit(this, enemies, out UnitBase nearestEnemy );
@@ -60,8 +67,8 @@ public class Warrior : UnitBase, IHitSource
 
         Vector3 toNearest = (nearestEnemy.position - position).normalized;
         toNearest.Scale( new Vector3(1, 0, 1));
-        Move( toNearest.normalized );
+        Move(deltaTime, toNearest.normalized );
 
-        Attack(nearestEnemy);
+        Attack(nearestEnemy, worldProxy);
     }
 }

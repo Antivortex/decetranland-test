@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BBB;
+using Exercise.Battle.Scripts;
 using UnityEngine;
 
-public abstract class UnitBaseRenderer : MonoBehaviour
+public abstract class UnitBaseRenderer : MonoBehaviour, IRenderer
 {
     [SerializeField] private Renderer _renderer;
     [SerializeField] private Animator _animator;
 
-    protected Animator animator => _animator;
-
-    [NonSerialized]
-    public IArmyModel armyModel;
-
     private Vector3 _lastPosition;
+    private int _lastAttacksCount;
 
     private Transform _selfTransform;
     private UnitBase _unitToRender;
@@ -42,15 +38,41 @@ public abstract class UnitBaseRenderer : MonoBehaviour
         {
             if (_unitToRender.position != _lastPosition)
             {
-                _animator.SetFloat("MovementSpeed", (SelfTransform.position - _lastPosition).magnitude / _unitToRender.speed);
+                if(_animator != null)
+                    _animator.SetFloat("MovementSpeed", (SelfTransform.position - _lastPosition).magnitude / _unitToRender.speed);
             }
             
+            //local position is faster to access then position
+            //but it will only work as expected if all of the units
+            //are located within same parent or at least parents with 0,0,0 position
             SelfTransform.localPosition = _unitToRender.position;
             
             if(_unitToRender.forward != Vector3.zero)
                 SelfTransform.forward = _unitToRender.forward;
 
+            if (_unitToRender.AttacksCount > _lastAttacksCount)
+            { 
+                if(_animator != null)
+                    _animator.SetTrigger("Attack");
+                _lastAttacksCount = _unitToRender.AttacksCount;
+            }
+
             _lastPosition = _unitToRender.position;
+        }
+    }
+
+    public bool IsDead()
+    {
+        return _unitToRender == null || _unitToRender.Dead;
+    }
+
+    public virtual void Destroy()
+    {
+        if(_animator != null)
+            _animator.SetTrigger("Death");
+        else
+        {
+            gameObject.Release();
         }
     }
 }

@@ -10,14 +10,14 @@ public class GameOverMenu : MonoBehaviour
     public TextMeshProUGUI armyWins;
     public Button goToMenu;
 
-    public void Populate()
+    public void Populate(AppController appController)
     {
-        if ( BattleInstantiator.instance.army1.unitsCount == 0 )
+        if ( appController.army1.unitsCount == 0 )
         {
             armyWins.text = "Army 1 wins!";
         }
 
-        if ( BattleInstantiator.instance.army2.unitsCount == 0 )
+        if ( appController.army2.unitsCount == 0 )
         {
             armyWins.text = "Army 2 wins!";
         }

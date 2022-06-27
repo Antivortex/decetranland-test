@@ -3,8 +3,10 @@ using UnityEngine;
 
 public abstract class UnitBase
 {
+    public int id { get; protected set; }
     public Vector3 position { get; private set; }
     public Vector3 forward { get; private set; }
+    public abstract UnitType Type { get; }
     
     public float health { get; protected set; }
     public float defense { get; protected set; }
@@ -12,14 +14,18 @@ public abstract class UnitBase
     public float attackRange { get; protected set; }
     public float maxAttackCooldown { get; protected set; }
     public float postAttackDelay { get; protected set; }
-    public float speed { get; protected set; } = 0.1f;
+    public float speed { get; protected set; }
 
     public IArmyModel armyModel { get; protected set; }
     public Army army { get; protected set; }
     
     protected float attackCooldown;
+
+    public bool Dead => health < 0f;
+
+    //counters for rendering
+    public int AttacksCount { get; protected set; }
     
-    public bool Dead { get; private set; }
     
     public void Init(IUnitModel unitModel, IArmyModel armyModel, Army army, Vector3 pos)
     {
@@ -37,36 +43,37 @@ public abstract class UnitBase
 
     public virtual void Update(float deltaTime, IWorldProxy worldProxy)
     {
-        if ( health < 0 )
+        if ( health < 0)
             return;
 
         IEnumerable<UnitBase> allies = army.GetUnits();
         IEnumerable<UnitBase> enemies = army.enemyArmy.GetUnits();
 
-        UpdateBasicRules(allies, enemies, worldProxy);
+        UpdateBasicRules(deltaTime, allies, enemies, worldProxy);
 
         switch ( armyModel.strategy )
         {
             case ArmyStrategy.Defensive:
-                UpdateDefensive(allies, enemies, worldProxy);
+                UpdateDefensive(deltaTime, allies, enemies, worldProxy);
                 break;
             case ArmyStrategy.Basic:
-                UpdateBasic(allies, enemies, worldProxy);
+                UpdateBasic(deltaTime, allies, enemies, worldProxy);
                 break;
         }
     }
-    public abstract void Attack(UnitBase enemy);
-    protected abstract void UpdateDefensive(IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
+    public abstract void Attack(UnitBase enemy, IWorldProxy worldProxy);
+    protected abstract void UpdateDefensive(float deltaTime, IEnumerable<UnitBase> allies,
+        IEnumerable<UnitBase> enemies,
         IWorldProxy worldProxy);
-    protected abstract void UpdateBasic(IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
+    protected abstract void UpdateBasic(float deltaTime, IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
         IWorldProxy worldProxy);
 
-    public virtual void Move( Vector3 delta )
+    public virtual void Move(float deltaTime, Vector3 delta)
     {
         if (attackCooldown > maxAttackCooldown - postAttackDelay)
             return;
 
-        position += delta * speed;
+        position += delta * speed * deltaTime;
     }
 
     public virtual void Hit( IHitSource source )
@@ -91,11 +98,6 @@ public abstract class UnitBase
         if ( health < 0 )
         {
             forward = source.position - position;
-            Dead = true;
-
-            //TODO ANTON render death
-            // var animator = GetComponentInChildren<Animator>();
-            // animator?.SetTrigger("Death");
         }
         else
         {
@@ -105,7 +107,8 @@ public abstract class UnitBase
         }
     }
 
-    void UpdateBasicRules(IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies, IWorldProxy worldProxy)
+    void UpdateBasicRules(float deltaTime, IEnumerable<UnitBase> allies, IEnumerable<UnitBase> enemies,
+        IWorldProxy worldProxy)
     {
         attackCooldown -= Time.deltaTime;
         EvadeAllies(allies, worldProxy);

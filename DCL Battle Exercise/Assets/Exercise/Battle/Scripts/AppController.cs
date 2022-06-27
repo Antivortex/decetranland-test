@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using Exercise.Battle.Scripts;
+using Exercise.Models.Scripts;
 using UnityEngine;
 
-
-public class BattleInstantiator : MonoBehaviour, IWorldProxy
+//battle instantiator renamed to AppController and singleton pattern removed
+//since global acceess singletons are evil
+public class AppController : MonoBehaviour, IWorldProxy
 {
-    public static BattleInstantiator instance { get; private set; }
 
     [SerializeField] private Transform mainCameraTransform;
 
@@ -15,32 +17,34 @@ public class BattleInstantiator : MonoBehaviour, IWorldProxy
     private ArmyModelSO army2Model;
 
     [SerializeField] 
-    private WarriorModel warriorModel;
-    
+    private ModelsProvider modelProvider;
+
     [SerializeField] 
-    private ArcherModel archerModel;
+    private ObjectPoolProvider _objectPoolsProvider;
 
-    [SerializeField]
-    private WarriorRenderer warriorPrefab;
-
-    [SerializeField]
-    private ArcherRenderer archerPrefab;
+    [SerializeField] 
+    private UnitPoolProvider _unitPoolProvider;
 
     [SerializeField]
     private BoxCollider leftArmySpawnBounds;
 
     [SerializeField]
     private BoxCollider rightArmySpawnBounds;
+    
 
     public readonly Army army1 = new Army();
     public readonly Army army2 = new Army();
+
+    private List<ObjectBase> objects = new List<ObjectBase>();
+    private List<ObjectBase> objectsBuffer = new List<ObjectBase>();
 
     public Color army1Color;
     public Color army2Color;
 
     public GameOverMenu gameOverMenu;
 
-    private readonly List<UnitBaseRenderer> renderers = new List<UnitBaseRenderer>();
+    private List<IRenderer> renderers = new List<IRenderer>();
+    private List<IRenderer> renderersBuffer = new List<IRenderer>();
 
     private Vector3 forwardTarget;
 
@@ -59,50 +63,49 @@ public class BattleInstantiator : MonoBehaviour, IWorldProxy
 
     public Vector3 totalArmiesCenter { get; set; }
 
+    public IObjectModel GetObjectModel(ObjectType type)
+    {
+        return modelProvider.GetObjectModel(type);
+    }
 
     void InstanceArmy(IArmyModel armyModel, Army army, Bounds instanceBounds)
     {
         for ( int i = 0; i < armyModel.warriors; i++ )
         {
-            AddWarrior(armyModel, army, instanceBounds);
+            var warrior = new Warrior();
+            AddUnit(warrior, armyModel, army, instanceBounds);
         }
 
         for ( int i = 0; i < armyModel.archers; i++ )
         {
-            AddArcher(armyModel, army, instanceBounds);
+            var archer = new Archer();
+            AddUnit(archer, armyModel, army, instanceBounds);
         }
     }
 
-    private void AddWarrior(IArmyModel armyModel, Army army, Bounds instanceBounds)
+    private void AddUnit(UnitBase unit, IArmyModel armyModel, Army army, Bounds instanceBounds)
     {
-        var warrior = new Warrior();
+        var model = modelProvider.GetUnitModel(unit.Type);
         var pos = Utils.GetRandomPosInBounds(instanceBounds);
-        warrior.Init(warriorModel, armyModel, army, pos);
-        army.AddUnit(warrior);
-        InstantiateRenderer(warrior, warriorPrefab.gameObject, armyModel, army, instanceBounds);
-    }
-
-    private void AddArcher(IArmyModel armyModel, Army army, Bounds instanceBounds)
-    {
-        var archer = new Archer();
-        var pos = Utils.GetRandomPosInBounds(instanceBounds);
-        archer.Init(warriorModel, armyModel, army, pos);
-        army.AddUnit(archer);
-        InstantiateRenderer(archer, archerPrefab.gameObject, armyModel, army, instanceBounds);
-    }
-
-    private void InstantiateRenderer(UnitBase unitObj, GameObject unitPrefab, IArmyModel model, Army army, Bounds instanceBounds)
-    {
-        GameObject go = Instantiate(unitPrefab);
-        var unitRenderer = go.GetComponent<UnitBaseRenderer>();
-        unitRenderer.Init(unitObj, army.color);
+        unit.Init(model, armyModel, army, pos);
+        army.AddUnit(unit);
+        var unitPool = _unitPoolProvider.GetPoolFor(unit.Type);
+        var unitRenderer = unitPool.Spawn<UnitBaseRenderer>();
+        unitRenderer.Init(unit, army.color);
         renderers.Add(unitRenderer);
     }
+    
+    public void AddObject(ObjectBase obj)
+    {
+        objects.Add(obj);
 
+        var rendererPool = _objectPoolsProvider.GetPoolFor(obj.Type);
+        var objRenderer = rendererPool.Spawn<ObjectRendererBase>();
+        renderers.Add(objRenderer);
+    }
+    
     void Awake()
     {
-        instance = this;
-
         army1.color = army1Color;
         army1.enemyArmy = army2;
 
@@ -145,7 +148,7 @@ public class BattleInstantiator : MonoBehaviour, IWorldProxy
         if ( army1.unitsCount == 0 || army2.unitsCount == 0 )
         {
             gameOverMenu.gameObject.SetActive(true);
-            gameOverMenu.Populate();
+            gameOverMenu.Populate(this);
             return;
         }
         
@@ -162,14 +165,59 @@ public class BattleInstantiator : MonoBehaviour, IWorldProxy
         {
             unit.Update(deltaTime, this);
         }
+        
+        foreach(var obj in objects)
+            obj.Update(deltaTime, this);
 
         army1.RemoveDeadUnits();
         army2.RemoveDeadUnits();
+
+        RemoveDeadObjects();
         
         UpdateCamera(army1, army2);
 
         foreach (var r in renderers)
             r.Render();
+
+        RemoveDeadRenderers();
+    }
+
+    private void RemoveDeadObjects()
+    {
+        objectsBuffer.Clear();
+        foreach (var obj in objects)
+        {
+            if(!obj.dead)
+                objectsBuffer.Add(obj);
+        }
+
+        var temp = objects;
+        objects = objectsBuffer;
+        objectsBuffer = temp;
+        
+        objectsBuffer.Clear();
+    }
+
+    private void RemoveDeadRenderers()
+    {
+        //double buffer pattern is used here to not allocate lists on every frame
+        renderersBuffer.Clear();
+        foreach (var r in renderers)
+        {
+            if (r.IsDead())
+            {
+                r.Destroy();
+            }
+            else
+            {
+                renderersBuffer.Add(r);
+            }
+        }
+
+        var temp = renderers;
+        renderers = renderersBuffer;
+        renderersBuffer = temp;
+        renderersBuffer.Clear();
     }
 
     private void UpdateCamera(Army army1, Army army2)

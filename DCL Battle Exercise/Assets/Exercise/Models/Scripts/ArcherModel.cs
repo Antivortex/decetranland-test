@@ -9,13 +9,13 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Create ArcherModel", fileName = "ArcherModel", order = 0)]
 public class ArcherModel : ScriptableObject, IUnitModel
 {
-    [ReadOnlyAttribute, SerializeField] private float health = 5f;
-    [ReadOnlyAttribute, SerializeField] private float defense = 0f;
-    [ReadOnlyAttribute, SerializeField] private float attack = 10f;
-    [ReadOnlyAttribute, SerializeField] private float attackRange = 20f;
-    [ReadOnlyAttribute, SerializeField] private float maxAttackCooldown = 5f;
-    [ReadOnlyAttribute, SerializeField] private float postAttackDelay = 1f;
-    [ReadOnlyAttribute, SerializeField] private float speed = 0.1f;
+    [SerializeField] private float health = 5f;
+    [SerializeField] private float defense = 0f;
+    [SerializeField] private float attack = 10f;
+    [SerializeField] private float attackRange = 20f;
+    [SerializeField] private float maxAttackCooldown = 5f;
+    [SerializeField] private float postAttackDelay = 1f;
+    [SerializeField] private float speed = 0.0016f;
 
     public float Health => health;
     public float Defense => defense;

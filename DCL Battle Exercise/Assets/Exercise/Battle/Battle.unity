@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 527681570}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -987,10 +987,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4aeece4e56b0314a96a4315134bd6ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCameraTransform: {fileID: 354391276}
   army1Model: {fileID: 11400000, guid: a6c80dd762eaa2942967f75607f7c7a3, type: 2}
   army2Model: {fileID: 11400000, guid: 72f780312aa8e3c40b08fe23dd9b7117, type: 2}
-  warriorPrefab: {fileID: 4074248562238301595, guid: d84cac85cdce1be419a5e701d52e9cee, type: 3}
-  archerPrefab: {fileID: 8284140959867094785, guid: d5b353320e661744aa811b1a632ee53e, type: 3}
+  _objectsModelProvider: {fileID: 0}
+  warriorPrefab: {fileID: 0}
+  archerPrefab: {fileID: 0}
   leftArmySpawnBounds: {fileID: 764418157}
   rightArmySpawnBounds: {fileID: 443984563}
   army1Color: {r: 0.2305195, g: 0.75, b: 0.7012987, a: 1}

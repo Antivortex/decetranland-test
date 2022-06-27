@@ -12,6 +12,7 @@ public class Army
     public Vector3 center { get; private set; }
 
     private List<UnitBase> units = new List<UnitBase>();
+    private List<UnitBase> unitsBuffer = new List<UnitBase>();
 
     public IEnumerable<UnitBase> OwnAndEnemyUnits
     {
@@ -70,14 +71,17 @@ public class Army
 
     public void RemoveDeadUnits()
     {
-        var unitSurvived = new List<UnitBase>();
+        unitsBuffer.Clear();
         foreach (var unit in units)
         {
             if(!unit.Dead)
-                unitSurvived.Add(unit);
+                unitsBuffer.Add(unit);
         }
 
-        units = unitSurvived;
+        var temp = units;
+        units = unitsBuffer;
+        unitsBuffer = temp;
+        unitsBuffer.Clear();
 
     }
 }
