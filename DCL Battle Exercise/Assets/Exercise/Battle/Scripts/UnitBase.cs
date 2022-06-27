@@ -35,6 +35,7 @@ public abstract class UnitBase
         attack = unitModel.Attack;
         attackRange = unitModel.AttackRange;
         maxAttackCooldown = unitModel.MaxAttackCooldown;
+        attackCooldown = maxAttackCooldown * UnityEngine.Random.Range(0, 1f);
         postAttackDelay = unitModel.PostAttackDelay;
         speed = unitModel.Speed;
         this.armyModel = armyModel;

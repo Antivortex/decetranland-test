@@ -55,8 +55,8 @@ public class AppController : MonoBehaviour, IWorldProxy
     public IEnumerable<UnitBase> GetAllUnits()
     {
         foreach(var army in armies)
-        foreach (var unit in army.GetUnits())
-            yield return unit;
+            foreach (var unit in army.GetUnits())
+                yield return unit;
     }
 
     void InstanceArmy(IArmyModel armyModel, Army army, Bounds instanceBounds)

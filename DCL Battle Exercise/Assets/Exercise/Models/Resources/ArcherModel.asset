@@ -15,7 +15,7 @@ MonoBehaviour:
   health: 5
   defense: 0
   attack: 10
-  attackRange: 20
+  attackRange: 50
   maxAttackCooldown: 5
   postAttackDelay: 1
   speed: 6
