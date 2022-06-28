@@ -11,23 +11,10 @@ public class AppController : MonoBehaviour, IWorldProxy
 
     [SerializeField] private Transform mainCameraTransform;
 
-    [SerializeField]
-    private ArmyModelSO army1Model;
-
-    [SerializeField]
-    private ArmyModelSO army2Model;
-
-    [SerializeField] 
     private ModelsProvider modelProvider;
-
-    [SerializeField] 
-    private ObjectPoolProvider _objectPoolsProvider;
-
-    [SerializeField] 
-    private UnitPoolProvider _unitPoolProvider;
-
-    [SerializeField] 
-    private MaterialsProvider _materialsProvider;
+    private ObjectPoolProvider objectPoolsProvider;
+    private UnitPoolProvider unitPoolProvider;
+    private MaterialsProvider materialsProvider;
 
     [SerializeField] private BoxCollider[] armySpawnColliders;
     [SerializeField] private ArmyModelSO[] armyModels;
@@ -44,8 +31,52 @@ public class AppController : MonoBehaviour, IWorldProxy
 
     private Vector3 forwardTarget;
     private bool gameOver;
+    private GameObject battleField;
 
     public Vector3 totalArmiesCenter { get; private set; }
+    
+    void Awake()
+    {
+        gameOver = false;
+        
+        LoadManagers();
+
+        var battleFieldPrefab = Resources.Load<GameObject>("Battlefield");
+        battleField = GameObject.Instantiate(battleFieldPrefab, parent:null, worldPositionStays:true);
+        
+        for (int i = 0; i < armySpawnColliders.Length; i++)
+        {
+            var someCollider = armySpawnColliders[i];
+            var army = new Army(i);
+            var armyModel = armyModels[i];
+            armies.Add(army);
+            InstanceArmy(armyModel, army, someCollider.bounds);
+        }
+
+        for (int i = 0; i < armies.Count; i++)
+        {
+            var j = i + 1;
+            if (j == armies.Count)
+                j = 0;
+            
+            armies[i].enemyArmy = armies[j];
+        }
+    }
+
+    private void LoadManagers()
+    {
+        var modelsProviderPrefab = Resources.Load<GameObject>("ModelsProvider");
+        modelProvider = Instantiate(modelsProviderPrefab).GetComponent<ModelsProvider>();
+
+        var objectPoolsProviderPrefab = Resources.Load<GameObject>("ObjectPoolProvider");
+        objectPoolsProvider = Instantiate(objectPoolsProviderPrefab).GetComponent<ObjectPoolProvider>();
+
+        var unitPoolProviderPrefab = Resources.Load<GameObject>("UnitPoolProvider");
+        unitPoolProvider = Instantiate(unitPoolProviderPrefab).GetComponent<UnitPoolProvider>();
+
+        var materialsProviderPrefab = Resources.Load<GameObject>("MaterialsProvider");
+        materialsProvider = Instantiate(materialsProviderPrefab).GetComponent<MaterialsProvider>();
+    }
 
     public IObjectModel GetObjectModel(ObjectType type)
     {
@@ -80,9 +111,9 @@ public class AppController : MonoBehaviour, IWorldProxy
         var pos = Utils.GetRandomPosInBounds(instanceBounds);
         unit.Init(model, armyModel, army, pos);
         army.AddUnit(unit);
-        var unitPool = _unitPoolProvider.GetPoolFor(unit.Type);
+        var unitPool = unitPoolProvider.GetPoolFor(unit.Type);
         var unitRenderer = unitPool.Spawn<UnitBaseRenderer>();
-        unitRenderer.Init(unit, _materialsProvider);
+        unitRenderer.Init(unit, materialsProvider);
         renderers.Add(unitRenderer);
     }
     
@@ -90,32 +121,10 @@ public class AppController : MonoBehaviour, IWorldProxy
     {
         objects.Add(obj);
 
-        var rendererPool = _objectPoolsProvider.GetPoolFor(obj.Type);
+        var rendererPool = objectPoolsProvider.GetPoolFor(obj.Type);
         var objRenderer = rendererPool.Spawn<ObjectRendererBase>();
-        objRenderer.Init(obj, _materialsProvider);
+        objRenderer.Init(obj, materialsProvider);
         renderers.Add(objRenderer);
-    }
-    
-    void Awake()
-    {
-        gameOver = false;
-        for (int i = 0; i < armySpawnColliders.Length; i++)
-        {
-            var someCollider = armySpawnColliders[i];
-            var army = new Army(i);
-            var armyModel = armyModels[i];
-            armies.Add(army);
-            InstanceArmy(armyModel, army, someCollider.bounds);
-        }
-
-        for (int i = 0; i < armies.Count; i++)
-        {
-            var j = i + 1;
-            if (j == armies.Count)
-                j = 0;
-            
-            armies[i].enemyArmy = armies[j];
-        }
     }
 
     void UpdateArmyProperties(float deltaTime)
@@ -216,7 +225,7 @@ public class AppController : MonoBehaviour, IWorldProxy
         UpdateCamera();
 
         foreach (var r in renderers)
-            r.Render(_materialsProvider, deltaTime);
+            r.Render(materialsProvider, deltaTime);
 
         RemoveDeadRenderers();
     }

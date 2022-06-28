@@ -17,5 +17,5 @@ MonoBehaviour:
   attack: 10
   attackRange: 50
   maxAttackCooldown: 5
-  postAttackDelay: 1
+  postAttackDelay: 3
   speed: 6

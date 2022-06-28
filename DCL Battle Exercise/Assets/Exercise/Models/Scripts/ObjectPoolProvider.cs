@@ -14,7 +14,6 @@ public struct ObjectPoolSettings
 public class ObjectPoolProvider : MonoBehaviour
 {
     [SerializeField] private List<ObjectPoolSettings> _prefabs;
-    [SerializeField] private Transform _objectsHolder;
 
     private Dictionary<ObjectType, GoPool> _poolsDict;
 
@@ -26,7 +25,7 @@ public class ObjectPoolProvider : MonoBehaviour
 
             foreach (var prefabPair in _prefabs)
             {
-                var goPool = new GoPool(prefabPair.Prefab, _objectsHolder, prefabPair.Quantity);
+                var goPool = new GoPool(prefabPair.Prefab, null, prefabPair.Quantity);
                 _poolsDict[prefabPair.Type] = goPool;
             }
         }

@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8202269480418825570
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8703648075115529374}
+  - component: {fileID: 2649272803448423723}
+  m_Layer: 0
+  m_Name: MaterialsProvider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8703648075115529374
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8202269480418825570}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2649272803448423723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8202269480418825570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d52efb5e7694384acf1f5d85e7effd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _arrowMaterials:
+  - {fileID: 2100000, guid: 300d9edb3c5644f4baede55fd25132a4, type: 2}
+  - {fileID: 2100000, guid: 441779c942a584453ad0aab616986722, type: 2}
+  - {fileID: 2100000, guid: 0df79b637036e44eeba12213ec6eba1c, type: 2}
+  _warriorMaterials:
+  - {fileID: 2100000, guid: 61d3feb38e3d88f46af9c3f50aafdc5d, type: 2}
+  - {fileID: 2100000, guid: f56c71d8e29170c439608a0d9a851f40, type: 2}
+  - {fileID: 2100000, guid: 475bf2f0b831f4067a65c6ae81c9c06d, type: 2}
+  _archerMaterials:
+  - {fileID: 2100000, guid: 61d3feb38e3d88f46af9c3f50aafdc5d, type: 2}
+  - {fileID: 2100000, guid: f56c71d8e29170c439608a0d9a851f40, type: 2}
+  - {fileID: 2100000, guid: 475bf2f0b831f4067a65c6ae81c9c06d, type: 2}

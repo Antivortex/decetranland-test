@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02f23b66324495249b6ec4eafa794b7a, type: 3}
   m_Name: ArmyModel3
   m_EditorClassIdentifier: Assembly-CSharp::ArmyModelSO
-  warriorsValue: 66
-  archersValue: 66
-  strategyValue: 0
+  warriorsValue: 25
+  archersValue: 25
+  strategyValue: 1
