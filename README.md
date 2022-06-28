@@ -9,6 +9,7 @@ In this solution I have implemented following improvements:
 5) Optimized various GetComponent and transform calls
 6) Extended the project to support several armies instead of 2 including retargeting of the enemy army if current enemy army is 100% dead
 7) Optimized material usage by making sure different objects of the same color will use the same material
+8) Made resource providers containing references to prefabs to be loaded from Resources folder to reduce probability of git conflicts in a large team
 
 
 # Battle Simulator
